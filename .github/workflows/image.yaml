@@ -27,8 +27,8 @@ jobs:
       packages: write  # for pushing packages to GHCR, which is used by cd.apps.argoproj.io to avoid polluting Quay with tags
     if: github.repository == 'rahulssv/argo-cd'
     runs-on: ubuntu-20.04-ppc64le
-    env:
-      GOPATH: /home/runner/work/argo-cd/argo-cd
+    # env:
+    #   GOPATH: /home/runner/work/argo-cd/argo-cd
     steps:
       - uses: actions/setup-go@v4
         with:
