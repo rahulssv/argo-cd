@@ -1,6 +1,7 @@
 name: Image
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - master
@@ -10,7 +11,7 @@ on:
     types: [ labeled, unlabeled, opened, synchronize, reopened ]
 
 env:
-  GOLANG_VERSION: '1.18'
+  GOLANG_VERSION: '>=1.18'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -24,21 +25,22 @@ jobs:
     permissions:
       contents: write  # for git to push upgrade commit if not already deployed
       packages: write  # for pushing packages to GHCR, which is used by cd.apps.argoproj.io to avoid polluting Quay with tags
-    if: github.repository == 'argoproj/argo-cd'
-    runs-on: ubuntu-22.04
+    if: github.repository == 'rahulssv/argo-cd'
+    runs-on: ubuntu-20.04-ppc64le
     env:
       GOPATH: /home/runner/work/argo-cd/argo-cd
     steps:
-      - uses: actions/setup-go@d0a58c1c4d2b25278816e339b944508c875f3613 # v3.4.0
+      - uses: actions/setup-go@v4
         with:
           go-version: ${{ env.GOLANG_VERSION }}
-      - uses: actions/checkout@755da8c3cf115ac066823e79a1e1788f8940201b # v3.2.0
+          architecture: ppc64le
+      - uses: actions/checkout@v3 # v3.2.0
         with:
-          path: src/github.com/argoproj/argo-cd
+          path: src/github.com/rahulssv/argo-cd
 
       # get image tag
       - run: echo "tag=$(cat ./VERSION)-${GITHUB_SHA::8}" >> $GITHUB_OUTPUT
-        working-directory: ./src/github.com/argoproj/argo-cd
+        working-directory: ./src/github.com/rahulssv/argo-cd
         id: image
 
       # login
@@ -53,29 +55,28 @@ jobs:
           DOCKER_TOKEN: ${{ secrets.RELEASE_QUAY_TOKEN }}
 
       # build
-      - uses: docker/setup-qemu-action@e81a89b1732b9c48d79cd809d8d81d79c4647a18 # v2.1.0
-      - uses: docker/setup-buildx-action@8c0edbc76e98fa90f69d9a2c020dcb50019dc325 # v2.2.1
+      - uses: docker/setup-buildx-action@v2
       - run: |
-          IMAGE_PLATFORMS=linux/amd64
+          IMAGE_PLATFORMS=linux/ppc64le
           if [[ "${{ github.event_name }}" == "push" || "${{ contains(github.event.pull_request.labels.*.name, 'test-arm-image') }}" == "true" ]]
           then
-            IMAGE_PLATFORMS=linux/amd64,linux/arm64,linux/s390x,linux/ppc64le
+            IMAGE_PLATFORMS=linux/ppc64le
           fi
           echo "Building image for platforms: $IMAGE_PLATFORMS"
           docker buildx build --platform $IMAGE_PLATFORMS --push="${{ github.event_name == 'push' }}" \
-            -t ghcr.io/argoproj/argo-cd/argocd:${{ steps.image.outputs.tag }} \
-            -t quay.io/argoproj/argocd:latest .
-        working-directory: ./src/github.com/argoproj/argo-cd
+            -t ghcr.io/rahulssv/argo-cd/argocd:${{ steps.image.outputs.tag }} \
+            -t quay.io/rahulssv/argocd:latest .
+        working-directory: ./src/github.com/rahulssv/argo-cd
 
       # sign container images
       - name: Install cosign
-        uses: sigstore/cosign-installer@9becc617647dfa20ae7b1151972e9b3a2c338a2b # v2.8.1
+        uses: sigstore/cosign-installer@v2# v2.8.1
         with:
           cosign-release: 'v1.13.0'
 
       - name: Sign Argo CD latest image
         run: |
-          cosign sign --key env://COSIGN_PRIVATE_KEY quay.io/argoproj/argocd:latest
+          cosign sign --key env://COSIGN_PRIVATE_KEY quay.io/rahulssv/argocd:latest
           # Displays the public key to share.
           cosign public-key --key env://COSIGN_PRIVATE_KEY
         env:
@@ -89,9 +90,9 @@ jobs:
         env:
           TOKEN: ${{ secrets.TOKEN }}
       - run: |
-          docker run -u $(id -u):$(id -g) -v $(pwd):/src -w /src --rm -t ghcr.io/argoproj/argo-cd/argocd:${{ steps.image.outputs.tag }} kustomize edit set image quay.io/argoproj/argocd=ghcr.io/argoproj/argo-cd/argocd:${{ steps.image.outputs.tag }}
-          git config --global user.email 'ci@argoproj.com'
-          git config --global user.name 'CI'
+          docker run -u $(id -u):$(id -g) -v $(pwd):/src -w /src --rm -t ghcr.io/rahulssv/argo-cd/argocd:${{ steps.image.outputs.tag }} kustomize edit set image quay.io/rahulssv/argocd=ghcr.io/rahulssv/argo-cd/argocd:${{ steps.image.outputs.tag }}
+          git config --global user.email 'rahulvishwakarma1181@gmail.com'
+          git config --global user.name 'rahulssc'
           git diff --exit-code && echo 'Already deployed' || (git commit -am 'Upgrade argocd to ${{ steps.image.outputs.tag }}' && git push)
         if: github.event_name == 'push'
         working-directory: argoproj-deployments/argocd
