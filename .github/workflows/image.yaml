@@ -73,6 +73,7 @@ jobs:
         uses: sigstore/cosign-installer@v2.8.1
         with:
           cosign-release: 'v1.13.0'
+          install-dir: /tmp/_actions-runner-working-dir/.cosign
 
       - name: Sign Argo CD latest image
         run: |
