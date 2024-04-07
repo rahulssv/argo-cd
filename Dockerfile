@@ -6,9 +6,9 @@ ARG BASE_IMAGE=docker.io/ppc64le/ubuntu
 ####################################################################################################
 FROM docker.io/ppc64le/golang AS builder
 
-# RUN echo 'deb http://deb.debian.org/debian buster-backports main' >> /etc/apt/sources.list
-
-RUN apt-get update && apt-get install --no-install-recommends -y \
+RUN echo 'deb http://deb.debian.org/debian buster-backports main' >> /etc/apt/sources.list
+RUN dpkg --configure -a
+RUN apt-get update && apt-get install --fix-broken --no-install-recommends -y \
     openssh-server \
     nginx \
     unzip \
