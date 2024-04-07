@@ -20,8 +20,9 @@ RUN apt-get update && apt-get install --fix-broken --no-install-recommends -y \
     zip && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-RUN apt-get install --no-install-recommends -y \
-    openssh-server
+RUN apt-get remove openssh-server openssh-client --purge && \
+    apt-get autoremove && apt-get autoclean && apt-get update
+RUN apt-get install openssh-server openssh-client
     
 WORKDIR /tmp
 
