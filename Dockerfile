@@ -4,7 +4,7 @@ ARG BASE_IMAGE=docker.io/ppc64le/ubuntu
 # Initial stage which pulls prepares build dependencies and CLI tooling we need for our final image
 # Also used as the image in CI jobs so needs all dependencies
 ####################################################################################################
-FROM docker.io/ppc64le/golang AS builder
+FROM docker.io/library/golang AS builder
 
 RUN echo 'deb http://deb.debian.org/debian buster-backports main' >> /etc/apt/sources.list
 RUN dpkg --configure -a
