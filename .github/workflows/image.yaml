@@ -28,7 +28,7 @@ jobs:
     if: github.repository == 'rahulssv/argo-cd'
     runs-on: ubuntu-20.04-ppc64le
     env:
-      GOPATH: /home/runner/work/argo-cd/argo-cd
+      GOPATH: /tmp/_actions-runner-working-dir/work/argo-cd/argo-cd
     steps:
       - uses: actions/setup-go@v4
         with:
