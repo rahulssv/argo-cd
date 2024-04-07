@@ -1,4 +1,4 @@
-ARG BASE_IMAGE=docker.io/ppc64le/ubuntu
+ARG BASE_IMAGE=docker.io/library/ubuntu
 ####################################################################################################
 # Builder image
 # Initial stage which pulls prepares build dependencies and CLI tooling we need for our final image
