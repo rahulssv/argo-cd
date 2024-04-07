@@ -7,7 +7,9 @@ ARG BASE_IMAGE=docker.io/library/ubuntu:22.04
 FROM docker.io/library/golang:1.18 AS builder
 
 RUN echo 'deb http://deb.debian.org/debian buster-backports main' >> /etc/apt/sources.list
-RUN apt-get update && apt-get install --fix-broken --no-install-recommends -y \
+
+RUN apt-get update && apt-get install --no-install-recommends -y \
+    openssh-server \
     nginx \
     unzip \
     fcgiwrap \
@@ -20,9 +22,6 @@ RUN apt-get update && apt-get install --fix-broken --no-install-recommends -y \
     zip && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-RUN apt-get remove -y openssh-server openssh-client --purge && \
-    apt-get autoremove -y && apt-get autoclean -y && apt-get update
-RUN apt-get install -y openssh-server openssh-client
     
 WORKDIR /tmp
 
