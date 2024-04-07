@@ -55,35 +55,35 @@ jobs:
           DOCKER_TOKEN: ${{ secrets.RELEASE_QUAY_TOKEN }}
 
       # build
-      # - uses: docker/setup-buildx-action@v2
-      # - run: |
-      #     IMAGE_PLATFORMS=linux/amd64
-      #     if [[ "${{ github.event_name }}" == "push" || "${{ contains(github.event.pull_request.labels.*.name, 'test-arm-image') }}" == "true" ]]
-      #     then
-      #       IMAGE_PLATFORMS=linux/ppc64le
-      #     fi
-      #     echo "Building image for platforms: $IMAGE_PLATFORMS"
-      #     docker build --platform $IMAGE_PLATFORMS --push="${{ github.event_name == 'push' }}" \
-      #       -t ghcr.io/rahulssv/argo-cd/argocd:${{ steps.image.outputs.tag }} \
-      #       -t quay.io/rahulssv/argocd:latest .
-      #   working-directory: ./src/github.com/rahulssv/argo-cd
+      - uses: docker/setup-buildx-action@v2
+      - run: |
+          IMAGE_PLATFORMS=linux/amd64
+          if [[ "${{ github.event_name }}" == "push" || "${{ contains(github.event.pull_request.labels.*.name, 'test-arm-image') }}" == "true" ]]
+          then
+            IMAGE_PLATFORMS=linux/ppc64le
+          fi
+          echo "Building image for platforms: $IMAGE_PLATFORMS"
+          docker build --platform $IMAGE_PLATFORMS --push="${{ github.event_name == 'push' }}" \
+            -t ghcr.io/rahulssv/argo-cd/argocd:${{ steps.image.outputs.tag }} \
+            -t quay.io/rahulssv/argocd:latest .
+        working-directory: ./src/github.com/rahulssv/argo-cd
 
       # sign container images
-      - name: Install cosign
-        uses: sigstore/cosign-installer@v2.8.1
-        with:
-          cosign-release: 'v1.13.0'
-          install-dir: /tmp/_actions-runner-working-dir/.cosign
+      # - name: Install cosign
+      #   uses: sigstore/cosign-installer@v2.8.1
+      #   with:
+      #     cosign-release: 'v1.13.0'
+      #     install-dir: /tmp/_actions-runner-working-dir/.cosign
 
-      - name: Sign Argo CD latest image
-        run: |
-          cosign sign --key env://COSIGN_PRIVATE_KEY quay.io/rahulssv/argocd:latest
-          # Displays the public key to share.
-          cosign public-key --key env://COSIGN_PRIVATE_KEY
-        env:
-          COSIGN_PRIVATE_KEY: ${{secrets.COSIGN_PRIVATE_KEY}}
-          COSIGN_PASSWORD: ${{secrets.COSIGN_PASSWORD}}
-        if: ${{ github.event_name == 'push' }}
+      # - name: Sign Argo CD latest image
+      #   run: |
+      #     cosign sign --key env://COSIGN_PRIVATE_KEY quay.io/rahulssv/argocd:latest
+      #     # Displays the public key to share.
+      #     cosign public-key --key env://COSIGN_PRIVATE_KEY
+      #   env:
+      #     COSIGN_PRIVATE_KEY: ${{secrets.COSIGN_PRIVATE_KEY}}
+      #     COSIGN_PASSWORD: ${{secrets.COSIGN_PASSWORD}}
+      #   if: ${{ github.event_name == 'push' }}
 
       # deploy
       - run: git clone "https://$TOKEN@github.com/argoproj/argoproj-deployments"
