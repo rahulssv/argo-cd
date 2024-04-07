@@ -26,9 +26,9 @@ jobs:
       contents: write  # for git to push upgrade commit if not already deployed
       packages: write  # for pushing packages to GHCR, which is used by cd.apps.argoproj.io to avoid polluting Quay with tags
     if: github.repository == 'rahulssv/argo-cd'
-    runs-on: ubuntu-20.04-ppc64le
+    runs-on: ubuntu-latest
     env:
-      GOPATH: /tmp/_actions-runner-working-dir/argo-cd/argo-cd
+      GOPATH: /home/runner/work/argo-cd/argo-cd
     steps:
       - uses: actions/setup-go@v4
         with:
