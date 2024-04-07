@@ -86,15 +86,15 @@ jobs:
       #   if: ${{ github.event_name == 'push' }}
 
       # deploy
-      - run: git clone "https://$TOKEN@github.com/argoproj/argoproj-deployments"
-        if: github.event_name == 'push'
-        env:
-          TOKEN: ${{ secrets.TOKEN }}
-      - run: |
-          docker run -u $(id -u):$(id -g) -v /tmp/_actions-runner-working-dir/:/src -w /src --rm -t ghcr.io/rahulssv/argo-cd/argocd:${{ steps.image.outputs.tag }} kustomize edit set image quay.io/argoproj/argocd=ghcr.io/rahulssv/argo-cd/argocd:${{ steps.image.outputs.tag }}
-          git config --global user.email 'ci@argoproj.com'
-          git config --global user.name 'CI'
-          git diff --exit-code && echo 'Already deployed' || (git commit -am 'Upgrade argocd to ${{ steps.image.outputs.tag }}' && git push)
-        if: github.event_name == 'push'
-        working-directory: argoproj-deployments/argocd
+      # - run: git clone "https://$TOKEN@github.com/argoproj/argoproj-deployments"
+      #   if: github.event_name == 'push'
+      #   env:
+      #     TOKEN: ${{ secrets.TOKEN }}
+      # - run: |
+      #     docker run -u $(id -u):$(id -g) -v /tmp/_actions-runner-working-dir/:/src -w /src --rm -t ghcr.io/rahulssv/argo-cd/argocd:${{ steps.image.outputs.tag }} kustomize edit set image quay.io/argoproj/argocd=ghcr.io/rahulssv/argo-cd/argocd:${{ steps.image.outputs.tag }}
+      #     git config --global user.email 'ci@argoproj.com'
+      #     git config --global user.name 'CI'
+      #     git diff --exit-code && echo 'Already deployed' || (git commit -am 'Upgrade argocd to ${{ steps.image.outputs.tag }}' && git push)
+      #   if: github.event_name == 'push'
+      #   working-directory: argoproj-deployments/argocd
       # TODO: clean up old images once github supports it: https://github.community/t5/How-to-use-Git-and-GitHub/Deleting-images-from-GitHub-Package-Registry/m-p/41202/thread-id/9811
