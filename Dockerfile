@@ -81,7 +81,7 @@ WORKDIR /home/argocd
 ####################################################################################################
 # Argo CD UI stage
 ####################################################################################################
-FROM --platform=$BUILDPLATFORM docker.io/library/node:12.18.4 AS argocd-ui
+FROM --platform=$BUILDPLATFORM docker.io/ppc64le/node AS argocd-ui
 RUN echo $BUILDPLATFORM
 WORKDIR /src
 COPY ["ui/package.json", "ui/yarn.lock", "./"]
@@ -99,7 +99,7 @@ RUN HOST_ARCH=$TARGETARCH NODE_ENV='production' NODE_ONLINE_ENV='online' NODE_OP
 ####################################################################################################
 # Argo CD Build stage which performs the actual build of Argo CD binaries
 ####################################################################################################
-FROM --platform=$BUILDPLATFORM docker.io/library/golang:1.18 AS argocd-build
+FROM --platform=$BUILDPLATFORM docker.io/ppc64le/golang AS argocd-build
 
 WORKDIR /go/src/github.com/argoproj/argo-cd
 
