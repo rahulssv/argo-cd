@@ -91,7 +91,7 @@ jobs:
         env:
           TOKEN: ${{ secrets.TOKEN }}
       - run: |
-          docker run -u $(id -u):$(id -g) -v /tmp/_actions-runner-working-dir:/src -w /src  -t ghcr.io/rahulssv/argo-cd/argocd:${{ steps.image.outputs.tag }} 
+          docker run -v /tmp/_actions-runner-working-dir:/src -w /src  -t ghcr.io/rahulssv/argo-cd/argocd:${{ steps.image.outputs.tag }} 
           git config --global user.email 'rahulvishwakarma1181@gmail.com'
           git config --global user.name 'rahulssv'
           git diff --exit-code && echo 'Already deployed' || (git commit -am 'Upgrade argocd to ${{ steps.image.outputs.tag }}' && git push)
